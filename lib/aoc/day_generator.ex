@@ -30,11 +30,11 @@ defmodule Aoc.DayGenerator do
       part_2 = part_2_docs_from_body(body)
 
       new_body =
-        args
-        |> read_day_file()
+        file_or_its_folder(day, year)
+        |> File.read!()
         |> find_and_append_moduledocs(part_2)
 
-      write_day_file(args, new_body)
+        File.write!("#{file_or_its_folder(day, year)}", new_body)
 
       false
     else
@@ -46,23 +46,9 @@ defmodule Aoc.DayGenerator do
     end
   end
 
-  defp read_day_file({day, year, body}) do
-    title = title_from_body(body)
-    file_name = title |> String.replace(" ", "_") |> String.downcase()
-
-    "#{file_folder(day, year)}/#{file_name}.ex"
+  defp day_contains_part_two?({day, year, _body}) do
+    file_or_its_folder(day, year)
     |> File.read!()
-  end
-
-  defp write_day_file({day, year, body}, content) do
-    title = title_from_body(body)
-    file_name = title |> String.replace(" ", "_") |> String.downcase()
-    File.write!("#{file_folder(day, year)}/#{file_name}.ex", content)
-  end
-
-  defp day_contains_part_two?(args) do
-    args
-    |> read_day_file()
     |> String.contains?("## --- Part Two ---")
   end
 
@@ -73,19 +59,15 @@ defmodule Aoc.DayGenerator do
   end
 
   defp generate_day_file({day, year, body}) do
-    title = title_from_body(body)
-    module_name = title |> String.replace(" ", "") |> String.trim()
-
     content =
       EEx.eval_file("priv/templates/main_module.eex",
         year: year,
         day: String.pad_leading(day, 2, "0"),
-        title: module_name,
         module_documentation: module_docs_from_body(body)
       )
 
-    File.mkdir_p(file_folder(day, year))
-    write_day_file({day, year, body}, content)
+    File.mkdir_p(file_or_its_folder(year))
+    File.write!("#{file_or_its_folder(day, year)}", content)
     Mix.shell().info("Created Main Module")
     {day, year, body}
   end
@@ -93,19 +75,14 @@ defmodule Aoc.DayGenerator do
   defp generate_day_file(false), do: false
 
   defp generate_test({day, year, body}) do
-    title = title_from_body(body)
-    file_name = title |> String.replace(" ", "_") |> String.downcase()
-    module_name = title |> String.replace(" ", "") |> String.trim()
-
     content =
       EEx.eval_file("priv/templates/test_file.eex",
         year: year,
-        day: String.pad_leading(day, 2, "0"),
-        title: module_name
+        day: String.pad_leading(day, 2, "0")
       )
 
-    File.mkdir_p(test_file_folder(day, year))
-    File.write!("#{test_file_folder(day, year)}/#{file_name}_test.exs", content)
+    File.mkdir_p(test_file_or_its_folder(year))
+    File.write!("#{test_file_or_its_folder(day, year)}", content)
     Mix.shell().info("Created Test File")
     {day, year, body}
   end
@@ -115,10 +92,10 @@ defmodule Aoc.DayGenerator do
   defp generate_input({day, year, _body}) do
     case get_input(day, year) do
       %HTTPoison.Response{status_code: 200, body: body} ->
-        File.mkdir_p(input_file_folder(year))
+        File.mkdir_p(input_file_or_its_folder(year))
 
         File.write!(
-          "#{input_file_folder(year)}/day_#{String.pad_leading(day, 2, "0")}.txt",
+          input_file_or_its_folder(day, year),
           body |> String.trim()
         )
 
@@ -132,22 +109,33 @@ defmodule Aoc.DayGenerator do
   defp generate_input(false), do: false
 
   defp folder_exists?(day, year) do
-    day
-    |> file_folder(year)
+    file_or_its_folder(day, year)
     |> Path.expand()
     |> File.exists?()
   end
 
-  defp file_folder(day, year) do
-    "lib/aoc/year_#{year}/day_#{String.pad_leading(day, 2, "0")}"
+  defp file_or_its_folder(year) do
+    "lib/aoc/year_#{year}"
   end
 
-  defp test_file_folder(day, year) do
-    "test/aoc/year_#{year}/day_#{String.pad_leading(day, 2, "0")}"
+  defp file_or_its_folder(day, year) do
+    "lib/aoc/year_#{year}/day_#{String.pad_leading(day, 2, "0")}.ex"
   end
 
-  defp input_file_folder(year) do
+  defp test_file_or_its_folder(year) do
+    "test/aoc/year_#{year}"
+  end
+
+  defp test_file_or_its_folder(day, year) do
+    "test/aoc/year_#{year}/day_#{String.pad_leading(day, 2, "0")}.exs"
+  end
+
+  defp input_file_or_its_folder(year) do
     "priv/inputs/year_#{year}"
+  end
+
+  defp input_file_or_its_folder(day, year) do
+    "priv/inputs/year_#{year}/day_#{String.pad_leading(day, 2, "0")}.txt"
   end
 
   @prepend_title_pattern ~r/--- Day \d+:/
