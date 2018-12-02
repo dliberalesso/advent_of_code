@@ -63,6 +63,7 @@ defmodule Aoc.DayGenerator do
       EEx.eval_file("priv/templates/main_module.eex",
         year: year,
         day: String.pad_leading(day, 2, "0"),
+        short_description: short_description({day, year, body}),
         module_documentation: module_docs_from_body(body)
       )
 
@@ -138,6 +139,11 @@ defmodule Aoc.DayGenerator do
     "priv/inputs/year_#{year}/day_#{String.pad_leading(day, 2, "0")}.txt"
   end
 
+  defp short_description({day, year, body}) do
+    day_string = String.pad_leading(day, 2, "0")
+    "  Solution to Day #{day_string} of #{year}: #{title_from_body(body)}"
+  end
+
   @prepend_title_pattern ~r/--- Day \d+:/
 
   def title_from_body(body) do
@@ -182,11 +188,11 @@ defmodule Aoc.DayGenerator do
 
   defp partial_to_markdown(element, content) do
     case element do
-      "h2" -> "## #{content} \n\n"
+      "h2" -> "## #{content}\n\n"
       "em" -> "*#{content}*"
       "code" -> "`#{content}`"
-      "p" -> "#{Aoc.WordWrap.paragraph(content, 80)} \n\n"
-      "li" -> "- #{content} \n"
+      "p" -> "#{Aoc.WordWrap.paragraph(content, 80)}\n\n"
+      "li" -> "- #{content}\n"
       _ -> content
     end
   end
