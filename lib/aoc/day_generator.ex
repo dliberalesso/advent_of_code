@@ -128,7 +128,7 @@ defmodule Aoc.DayGenerator do
   end
 
   defp test_file_or_its_folder(day, year) do
-    "test/aoc/year_#{year}/day_#{String.pad_leading(day, 2, "0")}.exs"
+    "test/aoc/year_#{year}/day_#{String.pad_leading(day, 2, "0")}_test.exs"
   end
 
   defp input_file_or_its_folder(year) do
