@@ -72,23 +72,20 @@ defmodule Aoc.Year2018.Day02 do
   def part_1(input) do
     input
     |> String.split()
-    |> Enum.map(&find_twice_thrice/1)
-    |> Enum.reduce({0, 0}, fn {x, y}, {old_x, old_y} -> {old_x + x, old_y + y} end)
+    |> Enum.reduce({0, 0}, &find_twice_thrice/2)
     |> (fn {x, y} -> x * y end).()
   end
 
-  defp find_twice_thrice(string) do
+  defp find_twice_thrice(string, {old_twice, old_thrice}) do
     string
     |> String.to_charlist()
     |> Enum.reduce(%{}, fn char, acc -> Map.update(acc, char, 1, &(&1 + 1)) end)
-    |> Map.values()
-    |> Enum.reduce({0, 0}, fn x, {twice, thrice} ->
-      case x do
-        2 when twice == 0 -> {1, thrice}
-        3 when thrice == 0 -> {twice, 1}
-        _ -> {twice, thrice}
-      end
+    |> Enum.reduce({0, 0}, fn
+      {_codepoint, 2}, {twice, thrice} when twice == 0 -> {1, thrice}
+      {_codepoint, 3}, {twice, thrice} when thrice == 0 -> {twice, 1}
+      {_codepoint, _}, {twice, thrice} -> {twice, thrice}
     end)
+    |> (fn {twice, thrice} -> {old_twice + twice, old_thrice + thrice} end).()
   end
 
   @doc """
@@ -102,25 +99,23 @@ defmodule Aoc.Year2018.Day02 do
   end
 
   defp string_when_different_by_one([h | t]) do
-    case Enum.find_value(t, &one_char_difference_reversed_list(&1, h, [], 0)) do
-      nil -> string_when_different_by_one(t)
-      charlist -> charlist |> Enum.reverse() |> List.to_string()
-    end
+    Enum.find_value(t, &one_char_difference_string(&1, h, [], 0)) ||
+      string_when_different_by_one(t)
   end
 
-  defp one_char_difference_reversed_list([h | t1], [h | t2], same_list, difference_count) do
-    one_char_difference_reversed_list(t1, t2, [h | same_list], difference_count)
+  defp one_char_difference_string([h | t1], [h | t2], same_list, difference_count) do
+    one_char_difference_string(t1, t2, [h | same_list], difference_count)
   end
 
-  defp one_char_difference_reversed_list([_ | t1], [_ | t2], same_list, difference_count) do
-    one_char_difference_reversed_list(t1, t2, same_list, difference_count + 1)
+  defp one_char_difference_string([_ | t1], [_ | t2], same_list, difference_count) do
+    one_char_difference_string(t1, t2, same_list, difference_count + 1)
   end
 
-  defp one_char_difference_reversed_list([], [], same_list, 1) do
-    same_list
+  defp one_char_difference_string([], [], same_list, 1) do
+    same_list |> Enum.reverse() |> List.to_string()
   end
 
-  defp one_char_difference_reversed_list([], [], _, _) do
+  defp one_char_difference_string([], [], _, _) do
     nil
   end
 end
