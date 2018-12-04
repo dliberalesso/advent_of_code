@@ -112,10 +112,10 @@ defmodule Aoc.Year2018.Day02 do
   end
 
   defp one_char_difference_string([], [], same_list, 1) do
-    same_list |> Enum.reverse() |> List.to_string()
+    same_list
+    |> Enum.reverse()
+    |> List.to_string()
   end
 
-  defp one_char_difference_string([], [], _, _) do
-    nil
-  end
+  defp one_char_difference_string([], [], _, _), do: nil
 end
