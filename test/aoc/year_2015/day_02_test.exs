@@ -12,7 +12,7 @@ defmodule Aoc.Year2015.Day02Test do
 
     @tag day: 02, year: 2015
     test "input", %{input: input} do
-      assert input |> Day02.part_1() == 1588178
+      assert input |> Day02.part_1() == 1_588_178
     end
   end
 
@@ -24,7 +24,7 @@ defmodule Aoc.Year2015.Day02Test do
 
     @tag day: 02, year: 2015
     test "input", %{input: input} do
-      assert input |> Day02.part_2() == 3783758
+      assert input |> Day02.part_2() == 3_783_758
     end
   end
 end

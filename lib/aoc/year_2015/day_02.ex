@@ -60,8 +60,10 @@ defmodule Aoc.Year2015.Day02 do
 
   defp surface_area_and_slack(list) do
     Enum.reduce(
-      list, # list of areas
-      Enum.min(list), # smallest side will be the initial value of acc
+      # list of areas
+      list,
+      # smallest side will be the initial value of acc
+      Enum.min(list),
       fn x, acc -> x + x + acc end
     )
   end
@@ -85,7 +87,7 @@ defmodule Aoc.Year2015.Day02 do
 
   defp remove_max(list) do
     list
-    |> Enum.sort
+    |> Enum.sort()
     |> Enum.drop(-1)
   end
 

@@ -77,7 +77,7 @@ defmodule Aoc.Year2018.Day02 do
     |> (fn {x, y} -> x * y end).()
   end
 
-  defp find_twice_thrice (string) do
+  defp find_twice_thrice(string) do
     string
     |> String.to_charlist()
     |> Enum.reduce(%{}, fn char, acc -> Map.update(acc, char, 1, &(&1 + 1)) end)
