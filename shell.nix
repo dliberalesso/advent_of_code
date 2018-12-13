@@ -9,9 +9,5 @@ in
 
 mkShell {
   buildInputs = [ elixir libnotify inotify-tools ];
-
-  shellHook = ''
-    source .envrc
-  '';
 }
 
